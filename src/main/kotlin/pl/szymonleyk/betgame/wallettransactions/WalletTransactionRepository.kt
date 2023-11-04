@@ -1,7 +1,7 @@
-package pl.szymonleyk.betgame.register.account
+package pl.szymonleyk.betgame.wallettransactions
 
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface AccountRepository : ReactiveCrudRepository<Account, Long>
+interface WalletTransactionRepository : ReactiveCrudRepository<WalletTransaction, Long>
