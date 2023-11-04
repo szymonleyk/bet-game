@@ -4,5 +4,5 @@ import org.springframework.stereotype.Service
 
 @Service
 class AccountService(val accountRepository: AccountRepository) {
-    fun add(account: Account) = accountRepository.save(account).subscribe()
+    fun add(account: Account) = accountRepository.save(account)
 }

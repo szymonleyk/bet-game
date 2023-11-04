@@ -1,0 +1,7 @@
+CREATE TABLE `account`
+(
+    `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `username` VARCHAR(150) NOT NULL UNIQUE,
+    `name`     VARCHAR(150) NOT NULL,
+    `surname`  VARCHAR(150) NOT NULL
+);

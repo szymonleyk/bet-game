@@ -7,12 +7,13 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import pl.szymonleyk.betgame.register.account.Account
 import pl.szymonleyk.betgame.register.account.AccountService
+import reactor.core.publisher.Mono
 
 @RestController
 class RegisterController(val accountService: AccountService) {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    fun register(@RequestBody account: Account) = accountService.add(account)
+    fun register(@RequestBody account: Account): Mono<Account> = accountService.add(account)
 
 }
