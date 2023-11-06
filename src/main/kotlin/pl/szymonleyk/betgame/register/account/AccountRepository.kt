@@ -4,4 +4,4 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface AccountRepository : ReactiveCrudRepository<Account, Long>
+interface AccountRepository : ReactiveCrudRepository<Account, Int>

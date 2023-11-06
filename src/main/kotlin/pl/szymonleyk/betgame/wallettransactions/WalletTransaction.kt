@@ -5,4 +5,4 @@ import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDate
 
 @Table
-data class WalletTransaction(@Id val id: Int?, val transactionDate: LocalDate, val amount: Int, val accountId: Int)
+data class WalletTransaction(@Id val id: Int? = null, val transactionDate: LocalDate, val amount: Int, val accountId: Int)

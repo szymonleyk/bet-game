@@ -5,11 +5,13 @@ import java.time.LocalDate
 
 @Service
 class WalletTransactionService(val walletTransactionRepository: WalletTransactionRepository) {
-    fun add(walletTransaction: WalletTransaction) = walletTransactionRepository.save(walletTransaction)
+    fun addTransaction(walletTransaction: WalletTransaction) = walletTransactionRepository.save(walletTransaction)
 
-    fun addEntryBalance(accountId: Int) {
-        add(WalletTransaction(null, LocalDate.now(), ENTRY_BALANCE, accountId))
-    }
+    fun addEntryBalance(accountId: Int) = addTransaction(
+        WalletTransaction(
+            transactionDate = LocalDate.now(), amount = ENTRY_BALANCE, accountId = accountId
+        )
+    )
 
     companion object {
         const val ENTRY_BALANCE = 1000
