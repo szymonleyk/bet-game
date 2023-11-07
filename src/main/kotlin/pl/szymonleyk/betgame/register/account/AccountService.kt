@@ -21,7 +21,7 @@ class AccountService(
 
     private fun validate(accountData: AccountData): Mono<AccountId> =
         accountRepository.findByUsername(accountData.username)
-            .flatMap { Mono.error<AccountId>(NonUniqueUsernameException()) }
+            .flatMap { Mono.error(NonUniqueUsernameException()) }
 
     private fun dtoToAccount(accountData: AccountData): Account {
         return Account(
