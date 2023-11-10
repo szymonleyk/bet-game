@@ -12,6 +12,6 @@ import reactor.core.publisher.Mono
 class RegisterController(val accountService: AccountService) {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    fun register(@RequestBody accountData: AccountData) : Mono<AccountId> = accountService.create(accountData)
+    fun register(@RequestBody accountRequest: AccountRequest) : Mono<AccountIdData> = accountService.create(accountRequest)
 
 }

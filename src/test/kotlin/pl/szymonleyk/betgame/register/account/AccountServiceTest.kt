@@ -6,8 +6,8 @@ import org.mockito.InjectMocks
 import org.mockito.Mock;
 import org.mockito.Mockito
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import pl.szymonleyk.betgame.register.AccountData
-import pl.szymonleyk.betgame.register.AccountId
+import pl.szymonleyk.betgame.register.AccountRequest
+import pl.szymonleyk.betgame.register.AccountIdData
 import pl.szymonleyk.betgame.wallettransactions.WalletTransactionService
 
 import reactor.core.publisher.Mono;
@@ -27,20 +27,20 @@ class AccountServiceTest {
 
     @Test
     fun `Test create account`() {
-        val accountData = AccountData("testUsername", "John", "Doe")
+        val accountRequest = AccountRequest("testUsername", "John", "Doe")
 
-        Mockito.`when`(accountRepository.findByUsername(accountData.username))
+        Mockito.`when`(accountRepository.findByUsername(accountRequest.username))
             .thenReturn(Mono.empty())
 
         Mockito.`when`(accountRepository.save(Mockito.any(Account::class.java)))
-            .thenReturn(Mono.just(Account(1, accountData.username, accountData.name, accountData.surname)))
+            .thenReturn(Mono.just(Account(1, accountRequest.username, accountRequest.name, accountRequest.surname, 1000L)))
 
         Mockito.`when`(walletTransactionService.addEntryBalance(1))
             .thenReturn(Mono.empty())
 
         StepVerifier
-            .create(accountService.create(accountData))
-            .expectNext(AccountId(1))
+            .create(accountService.create(accountRequest))
+            .expectNext(AccountIdData(1))
             .verifyComplete()
     }
 }

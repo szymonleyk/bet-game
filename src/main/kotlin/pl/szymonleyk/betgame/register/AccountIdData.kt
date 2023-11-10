@@ -1,3 +1,3 @@
 package pl.szymonleyk.betgame.register
 
-data class AccountId(val id:Int)
+data class AccountIdData(val id:Int)
