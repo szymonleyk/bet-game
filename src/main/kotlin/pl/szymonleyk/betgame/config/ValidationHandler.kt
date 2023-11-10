@@ -5,7 +5,7 @@ import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.bind.support.WebExchangeBindException
-import pl.szymonleyk.betgame.register.account.NonUniqueUsernameException
+import pl.szymonleyk.betgame.register.exceptions.NonUniqueUsernameException
 
 @RestControllerAdvice
 class ValidationHandler {

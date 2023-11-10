@@ -1,3 +1,3 @@
-package pl.szymonleyk.betgame.register.account
+package pl.szymonleyk.betgame.register.exceptions
 
 class NonUniqueUsernameException() : RuntimeException("Username already used")
