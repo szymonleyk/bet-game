@@ -1,5 +1,6 @@
 package pl.szymonleyk.betgame.wallettransactions
 
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
@@ -33,10 +34,13 @@ class WalletTransactionsControllerTest {
         given(walletTransactionService.retrieveWalletTransactions(accountId))
             .willReturn(Flux.fromIterable(expectedTransactions))
 
-        webClient.get().uri("/wallet-transactions/$accountId")
+        val result = webClient.get().uri("/wallet-transactions/$accountId")
             .exchange()
             .expectStatus().isOk
             .expectBodyList(WalletTransactionData::class.java)
+            .returnResult()
+
+        Assertions.assertThatList(result.responseBody).isEqualTo(expectedTransactions)
     }
 
     @Test
@@ -52,6 +56,5 @@ class WalletTransactionsControllerTest {
             .expectBody(String::class.java)
             .isEqualTo("[\"Account not found\"]")
     }
-
 
 }
