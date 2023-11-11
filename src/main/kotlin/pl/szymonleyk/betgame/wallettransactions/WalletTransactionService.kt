@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import pl.szymonleyk.betgame.AccountNotFoundException
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import java.time.LocalDate
 
 @Service
@@ -22,7 +21,7 @@ class WalletTransactionService(val walletTransactionRepository: WalletTransactio
 
     fun retrieveWalletTransactions(accountId: Int): Flux<WalletTransactionData> =
         walletTransactionRepository.findAllByAccountId(accountId)
-            .switchIfEmpty(Mono.error(::AccountNotFoundException))
+            .switchIfEmpty(Flux.error(::AccountNotFoundException))
             .map { walletTransaction ->
                 WalletTransactionData(walletTransaction.transactionDate, walletTransaction.amount)
             }

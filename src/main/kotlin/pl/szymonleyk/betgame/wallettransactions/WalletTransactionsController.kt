@@ -7,7 +7,7 @@ import reactor.core.publisher.Flux
 import java.time.LocalDate
 
 @RestController
-class WalletTransactionsController(private val walletTransactionService: WalletTransactionService) {
+class WalletTransactionsController(val walletTransactionService: WalletTransactionService) {
 
     @GetMapping("/wallet-transactions/{accountId}")
     fun retrieveWalletTransactions(@PathVariable accountId: Int) : Flux<WalletTransactionData> =

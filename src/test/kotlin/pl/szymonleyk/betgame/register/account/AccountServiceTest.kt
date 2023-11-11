@@ -24,7 +24,7 @@ class AccountServiceTest {
     private lateinit var accountService: AccountService
 
     @Test
-    fun `create account successfully`() {
+    fun `when data valid add account`() {
         val accountRequest = AccountRequest("username", "John", "Doe")
         val expectedAccount = Account(1, "username", "John", "Doe", 1000.0)
         val expectedAccountIdData = AccountIdData(1)
@@ -39,7 +39,7 @@ class AccountServiceTest {
     }
 
     @Test
-    fun `create account with existing username should throw UsernameAlreadyUsedException`() {
+    fun `when username already used then return BadRequest code and message`() {
         // Arrange
         val accountRequest = AccountRequest("existingUsername", "John", "Doe")
 

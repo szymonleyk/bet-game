@@ -41,7 +41,7 @@ class RegisterControllerTest {
     }
 
     @Test
-    fun `when username duplicated then return BadRequest(400) with proper message`() {
+    fun `when username duplicated then return BadRequest(400) with appropiate message`() {
         val accountRequest = AccountRequest("sleyk1001", "Szymon", "Leyk")
 
         given(accountService.create(accountRequest)).willThrow(UsernameAlreadyUsedException())

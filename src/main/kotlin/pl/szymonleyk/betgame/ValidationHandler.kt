@@ -22,7 +22,8 @@ class ValidationHandler {
     fun handleGenericException2(e: BetGameException): ResponseEntity<List<String>> {
         val errors = mutableListOf<String>()
         errors.add(e.message!!)
-        return ResponseEntity.badRequest().body(errors)
+        val statusCode = e.statusCode
+        return ResponseEntity.status(statusCode).body(errors)
     }
 
 }
