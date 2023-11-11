@@ -3,11 +3,11 @@ package pl.szymonleyk.betgame.wallettransactions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.BDDMockito.given
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import pl.szymonleyk.betgame.register.account.Account
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import java.time.LocalDate
@@ -24,8 +24,8 @@ class WalletTransactionServiceTest {
         val accountId = 1
         val expectedTransaction = WalletTransaction(1, LocalDate.now(), WalletTransactionService.ENTRY_BALANCE, accountId)
 
-        Mockito.`when`(walletTransactionRepository.save(Mockito.any(WalletTransaction::class.java)))
-            .thenReturn(Mono.just(expectedTransaction))
+        given(walletTransactionRepository.save(Mockito.any(WalletTransaction::class.java)))
+            .willReturn(Mono.just(expectedTransaction))
 
         StepVerifier.create(walletTransactionService.addEntryBalance(accountId))
             .expectNext(expectedTransaction)

@@ -1,46 +1,57 @@
 package pl.szymonleyk.betgame.register.account
 
+import org.h2.message.DbException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentMatchers
+import org.mockito.BDDMockito.given
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
-import org.springframework.test.context.junit.jupiter.SpringExtension
-import pl.szymonleyk.betgame.register.AccountRequest
+import org.mockito.junit.jupiter.MockitoExtension
+import pl.szymonleyk.betgame.UsernameAlreadyUsedException
 import pl.szymonleyk.betgame.register.AccountIdData
-import pl.szymonleyk.betgame.wallettransactions.WalletTransactionService
-
+import pl.szymonleyk.betgame.register.AccountRequest
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 
-@ExtendWith(SpringExtension::class)
+@ExtendWith(MockitoExtension::class)
 class AccountServiceTest {
 
     @Mock
     private lateinit var accountRepository: AccountRepository
 
-    @Mock
-    private lateinit var walletTransactionService: WalletTransactionService
-
     @InjectMocks
     private lateinit var accountService: AccountService
 
     @Test
-    fun `Test create account`() {
-        val accountRequest = AccountRequest("testUsername", "John", "Doe")
+    fun `create account successfully`() {
+        val accountRequest = AccountRequest("username", "John", "Doe")
+        val expectedAccount = Account(1, "username", "John", "Doe", 1000.0)
+        val expectedAccountIdData = AccountIdData(1)
 
-        Mockito.`when`(accountRepository.findByUsername(accountRequest.username))
-            .thenReturn(Mono.empty())
+        given(accountRepository.save(ArgumentMatchers.any(Account::class.java))).willReturn(Mono.just(expectedAccount))
 
-//        Mockito.`when`(accountRepository.save(Mockito.any(Account::class.java)))
-//            .thenReturn(Mono.just(Account(1, accountRequest.username, accountRequest.name, accountRequest.surname, 1000L)))
+        val result = accountService.create(accountRequest)
 
-        Mockito.`when`(walletTransactionService.addEntryBalance(1))
-            .thenReturn(Mono.empty())
-
-        StepVerifier
-            .create(accountService.create(accountRequest))
-            .expectNext(AccountIdData(1))
+        StepVerifier.create(result)
+            .expectNext(expectedAccountIdData)
             .verifyComplete()
     }
+
+    @Test
+    fun `create account with existing username should throw UsernameAlreadyUsedException`() {
+        // Arrange
+        val accountRequest = AccountRequest("existingUsername", "John", "Doe")
+
+        given(accountRepository.save(ArgumentMatchers.any())).willThrow(DbException::class.java)
+
+        val result = accountService.create(accountRequest)
+
+        // Assert
+        StepVerifier.create(result)
+            .expectError(UsernameAlreadyUsedException::class.java)
+            .verify()
+    }
+
+    // Add more tests for other scenarios as needed
 }

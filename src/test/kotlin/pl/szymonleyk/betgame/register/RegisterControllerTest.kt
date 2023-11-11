@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
-import org.mockito.Mockito.`when`
+import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -30,7 +30,7 @@ class RegisterControllerTest {
         val accountRequest = AccountRequest("sleyk1001", "Szymon", "Leyk")
         val expectedId = 1
 
-        `when`(accountService.create(accountRequest)).thenReturn(Mono.just(AccountIdData(expectedId)))
+        given(accountService.create(accountRequest)).willReturn(Mono.just(AccountIdData(expectedId)))
 
         webClient.post().uri("/register")
             .bodyValue(accountRequest)
@@ -44,7 +44,7 @@ class RegisterControllerTest {
     fun `when username duplicated then return BadRequest(400) with proper message`() {
         val accountRequest = AccountRequest("sleyk1001", "Szymon", "Leyk")
 
-        `when`(accountService.create(accountRequest)).thenThrow(UsernameAlreadyUsedException())
+        given(accountService.create(accountRequest)).willThrow(UsernameAlreadyUsedException())
 
         webClient.post().uri("/register")
             .bodyValue(accountRequest)
