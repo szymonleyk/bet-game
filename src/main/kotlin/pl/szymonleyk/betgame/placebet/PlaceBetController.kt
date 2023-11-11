@@ -1,17 +1,19 @@
 package pl.szymonleyk.betgame.placebet
 
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import pl.szymonleyk.betgame.placebet.bet.BetService
 
 @RestController
-class PlaceBetController {
+class PlaceBetController(val betService: BetService) {
 
-    @PostMapping("/register")
+    @PostMapping("/place-bet")
     @ResponseStatus(HttpStatus.CREATED)
-    fun placeBet(@RequestBody placeBetRequest: PlaceBetRequest) {
+    fun placeBet(@Valid @RequestBody placeBetRequest: PlaceBetRequest) =
+        betService.placeBet(placeBetRequest)
 
-    }
 }
