@@ -1,4 +1,4 @@
-package pl.szymonleyk.betgame.config
+package pl.szymonleyk.betgame
 
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.FieldError
@@ -26,3 +26,5 @@ class ValidationHandler {
     }
 
 }
+
+open class BetGameException(message: String) : RuntimeException(message)

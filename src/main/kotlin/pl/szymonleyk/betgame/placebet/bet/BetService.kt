@@ -2,14 +2,15 @@ package pl.szymonleyk.betgame.placebet.bet
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import pl.szymonleyk.betgame.config.BetGameException
 import pl.szymonleyk.betgame.placebet.PlaceBetRequest
+import pl.szymonleyk.betgame.placebet.PlaceBetResponse
 import pl.szymonleyk.betgame.placebet.exceptions.AccountNotFoundException
 import pl.szymonleyk.betgame.placebet.exceptions.NegativeBalanceException
 import pl.szymonleyk.betgame.register.account.Account
 import pl.szymonleyk.betgame.register.account.AccountRepository
 import pl.szymonleyk.betgame.wallettransactions.WalletTransaction
 import pl.szymonleyk.betgame.wallettransactions.WalletTransactionRepository
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDate
 import kotlin.math.abs
@@ -28,7 +29,7 @@ class BetService(
             .switchIfEmpty(Mono.error(::AccountNotFoundException))
             .filter { hasSufficientBalance(it, placeBetRequest.betValue) }
             .switchIfEmpty(Mono.error(::NegativeBalanceException))
-            .flatMap { deductBetValue(it, placeBetRequest.betValue)}
+            .flatMap { deductBetValue(it, placeBetRequest.betValue) }
             .flatMap { play(it, placeBetRequest) }
             .thenReturn("Bet placed.")
 
@@ -47,16 +48,18 @@ class BetService(
         val winAmount = calculateBetResult(placeBetRequest, randomNumber)
 
         val hasWinner = winAmount > 0
-        if(hasWinner) {
+        if (hasWinner) {
             addWinAmount(account, winAmount)
         }
-        addBet(Bet(
-            betDate = LocalDate.now(),
-            betValue = placeBetRequest.betValue,
-            betNumber = placeBetRequest.betNumber,
-            win = hasWinner,
-            accountId = account.id!!
-        ))
+        addBet(
+            Bet(
+                betDate = LocalDate.now(),
+                betValue = placeBetRequest.betValue,
+                betNumber = placeBetRequest.betNumber,
+                win = hasWinner,
+                accountId = account.id!!
+            )
+        )
 
         return Mono.empty()
     }
@@ -92,6 +95,10 @@ class BetService(
             )
         ).subscribe()
     }
+
+    fun retriveBetsByAccount(accountId: Int): Flux<PlaceBetResponse> =
+        betRepository.findAllByAccountId(accountId)
+            .map { PlaceBetResponse(it.betValue, it.betNumber, it.win) }
 
     companion object {
         const val ZERO_BALANCE = 0L
