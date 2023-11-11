@@ -9,5 +9,6 @@ import reactor.core.publisher.Flux
 class WalletTransactionsController(private val walletTransactionService: WalletTransactionService) {
 
     @GetMapping("/wallet-transactions/{accountId}")
-    fun retrieveWalletTransactions(@PathVariable accountId: Int) : Flux<WalletTransactionData> = walletTransactionService.retrieveWalletTransactions(accountId)
+    fun retrieveWalletTransactions(@PathVariable accountId: Int) : Flux<WalletTransactionData> =
+        walletTransactionService.retrieveWalletTransactions(accountId)
 }

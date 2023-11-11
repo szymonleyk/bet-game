@@ -19,11 +19,12 @@ class WalletTransactionService(val walletTransactionRepository: WalletTransactio
     )
 
     fun retrieveWalletTransactions(accountId: Int): Flux<WalletTransactionData> =
-        walletTransactionRepository.findAllByAccountId(accountId).map {
-            walletTransaction -> WalletTransactionData(walletTransaction.transactionDate, walletTransaction.amount)
-        }
+        walletTransactionRepository.findAllByAccountId(accountId)
+            .map { walletTransaction ->
+                WalletTransactionData(walletTransaction.transactionDate, walletTransaction.amount)
+            }
 
     companion object {
-        const val ENTRY_BALANCE = 1000
+        const val ENTRY_BALANCE = 1000.0
     }
 }
