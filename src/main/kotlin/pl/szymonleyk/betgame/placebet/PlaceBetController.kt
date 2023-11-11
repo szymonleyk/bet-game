@@ -1,6 +1,8 @@
 package pl.szymonleyk.betgame.placebet
 
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -24,3 +26,20 @@ class PlaceBetController(val betService: BetService) {
         betService.retriveBetsByAccount(accountId)
 
 }
+data class PlaceBetRequest(
+    @field:Min(1)
+    val betValue: Int,
+
+    @field:Min(1)
+    @field:Max(10)
+    val betNumber: Int,
+
+    @field:Min(1)
+    val accountId: Int
+)
+
+data class PlaceBetResponse(
+    val betValue: Int,
+    val betNumber: Int,
+    val win: Boolean
+)
