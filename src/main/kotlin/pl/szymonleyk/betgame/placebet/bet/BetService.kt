@@ -2,10 +2,10 @@ package pl.szymonleyk.betgame.placebet.bet
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import pl.szymonleyk.betgame.AccountNotFoundException
+import pl.szymonleyk.betgame.NegativeBalanceException
 import pl.szymonleyk.betgame.placebet.PlaceBetRequest
 import pl.szymonleyk.betgame.placebet.PlaceBetResponse
-import pl.szymonleyk.betgame.placebet.exceptions.AccountNotFoundException
-import pl.szymonleyk.betgame.placebet.exceptions.NegativeBalanceException
 import pl.szymonleyk.betgame.register.account.Account
 import pl.szymonleyk.betgame.register.account.AccountRepository
 import pl.szymonleyk.betgame.wallettransactions.WalletTransaction

@@ -11,8 +11,8 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
+import pl.szymonleyk.betgame.UsernameAlreadyUsedException
 import pl.szymonleyk.betgame.register.account.AccountService
-import pl.szymonleyk.betgame.register.exceptions.NonUniqueUsernameException
 import reactor.core.publisher.Mono
 
 @ExtendWith(SpringExtension::class)
@@ -44,7 +44,7 @@ class RegisterControllerTest {
     fun `when username duplicated then return BadRequest(400) with proper message`() {
         val accountRequest = AccountRequest("sleyk1001", "Szymon", "Leyk")
 
-        `when`(accountService.create(accountRequest)).thenThrow(NonUniqueUsernameException())
+        `when`(accountService.create(accountRequest)).thenThrow(UsernameAlreadyUsedException())
 
         webClient.post().uri("/register")
             .bodyValue(accountRequest)
@@ -52,6 +52,18 @@ class RegisterControllerTest {
             .expectStatus().isBadRequest
             .expectBody(String::class.java)
             .isEqualTo("[\"Username already used\"]")
+    }
+
+    @Test
+    fun `when username length is greather than 25 then return BadRequest(400)`() {
+        val accountRequest = AccountRequest("sleysdjflalkllkjdlkfjalskd", "Szymon", "Leyk")
+        thenBedRequestExpected(accountRequest)
+    }
+
+    @Test
+    fun `when username length is less than 5 then return BadRequest(400)`() {
+        val accountRequest = AccountRequest("1233", "Szymon", "Leyk")
+        thenBedRequestExpected(accountRequest)
     }
 
     @ParameterizedTest(name = "when: username({0}), name({1}), surname({2})")
@@ -62,20 +74,10 @@ class RegisterControllerTest {
     )
     fun `when any data is blank then return BadRequest`(username: String, name: String, surname: String) {
         val accountRequest = AccountRequest(username, name, surname)
-
-        webClient.post().uri("/register")
-            .bodyValue(accountRequest)
-            .exchange()
-            .expectStatus().isBadRequest
-            .expectBody(String::class.java)
-            .returnResult()
+        thenBedRequestExpected(accountRequest)
     }
 
-
-    @Test
-    fun `when username length is greather than 25 then return BadRequest(400)`() {
-        val accountRequest = AccountRequest("sleysdjflalkllkjdlkfjalskd", "Szymon", "Leyk")
-
+    private fun thenBedRequestExpected(accountRequest: AccountRequest) {
         webClient.post().uri("/register")
             .bodyValue(accountRequest)
             .exchange()

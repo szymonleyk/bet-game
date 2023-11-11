@@ -26,5 +26,3 @@ class ValidationHandler {
     }
 
 }
-
-open class BetGameException(message: String) : RuntimeException(message)
