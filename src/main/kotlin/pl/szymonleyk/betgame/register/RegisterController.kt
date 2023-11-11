@@ -1,5 +1,6 @@
 package pl.szymonleyk.betgame.register
 
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -12,6 +13,6 @@ import reactor.core.publisher.Mono
 class RegisterController(val accountService: AccountService) {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    fun register(@RequestBody accountRequest: AccountRequest) : Mono<AccountIdData> = accountService.create(accountRequest)
+    fun register(@Valid @RequestBody accountRequest: AccountRequest) : Mono<AccountIdData> = accountService.create(accountRequest)
 
 }
