@@ -30,7 +30,7 @@ class AccountService(
     private fun mapToAccountIdData(account: Account): AccountIdData = AccountIdData(account.id!!)
 
     companion object {
-        const val ENTRY_BALANCE = 1000L
+        const val ENTRY_BALANCE = 1000.0
     }
 
 }
