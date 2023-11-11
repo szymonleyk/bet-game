@@ -28,23 +28,24 @@ class BetService(
             .switchIfEmpty(Mono.error(::AccountNotFoundException))
             .filter { hasSufficientBalance(it, placeBetRequest.betValue) }
             .switchIfEmpty(Mono.error(::NegativeBalanceException))
-            .doOnNext { deductBetValue(it, placeBetRequest.betValue); it }
-            .doOnNext { play(it, placeBetRequest) }
-            .thenReturn("DONE")
+            .flatMap { deductBetValue(it, placeBetRequest.betValue)}
+            .flatMap { play(it, placeBetRequest) }
+            .thenReturn("Bet placed.")
 
-    private fun deductBetValue(account: Account, betValue: Int) {
-        changeAccountBalance((-betValue).toDouble(), account)
+    private fun deductBetValue(account: Account, betValue: Int): Mono<Account> {
         addNewWalletTransaction((-betValue).toDouble(), account.id!!)
+        return changeAccountBalance((-betValue).toDouble(), account)
     }
 
     private fun addWinAmount(account: Account, amount: Double) {
-        changeAccountBalance(amount, account)
+        changeAccountBalance(amount, account).subscribe()
         addNewWalletTransaction(amount, account.id!!)
     }
 
-    private fun play(account: Account, placeBetRequest: PlaceBetRequest) {
+    private fun play(account: Account, placeBetRequest: PlaceBetRequest): Mono<out Any>? {
         val randomNumber = generateRandomNumber()
         val winAmount = calculateBetResult(placeBetRequest, randomNumber)
+
         val hasWinner = winAmount > 0
         if(hasWinner) {
             addWinAmount(account, winAmount)
@@ -56,6 +57,8 @@ class BetService(
             win = hasWinner,
             accountId = account.id!!
         ))
+
+        return Mono.empty()
     }
 
     private fun addBet(bet: Bet) {
@@ -75,10 +78,9 @@ class BetService(
     private fun hasSufficientBalance(account: Account, betValue: Int): Boolean =
         account.balance - betValue >= ZERO_BALANCE
 
-    private fun changeAccountBalance(betValue: Double, account: Account) {
+    private fun changeAccountBalance(betValue: Double, account: Account): Mono<Account> {
         val updatedAccount = account.copy(balance = account.balance + betValue)
-        accountRepository.save(updatedAccount)
-            .subscribe()
+        return accountRepository.save(updatedAccount)
     }
 
     private fun addNewWalletTransaction(amount: Double, accountId: Int) {
