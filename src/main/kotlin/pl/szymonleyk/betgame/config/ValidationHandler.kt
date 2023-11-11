@@ -5,7 +5,6 @@ import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.bind.support.WebExchangeBindException
-import pl.szymonleyk.betgame.register.exceptions.NonUniqueUsernameException
 
 @RestControllerAdvice
 class ValidationHandler {
@@ -19,13 +18,10 @@ class ValidationHandler {
         return ResponseEntity.badRequest().body(errors)
     }
 
-    @ExceptionHandler(NonUniqueUsernameException::class)
-    fun handleGenericException2(e: NonUniqueUsernameException): ResponseEntity<Map<String, String>> {
-        val errors = mutableMapOf<String, String>()
-
-        val errorMessage = e.message ?: "Non-unique username error"
-        errors["username"] = errorMessage
-
+    @ExceptionHandler(BetGameException::class)
+    fun handleGenericException2(e: BetGameException): ResponseEntity<List<String>> {
+        val errors = mutableListOf<String>()
+        errors.add(e.message!!)
         return ResponseEntity.badRequest().body(errors)
     }
 
