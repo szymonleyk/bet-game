@@ -40,18 +40,14 @@ class AccountServiceTest {
 
     @Test
     fun `when username already used then return BadRequest code and message`() {
-        // Arrange
         val accountRequest = AccountRequest("existingUsername", "John", "Doe")
 
         given(accountRepository.save(ArgumentMatchers.any())).willThrow(DbException::class.java)
 
         val result = accountService.create(accountRequest)
 
-        // Assert
         StepVerifier.create(result)
             .expectError(UsernameAlreadyUsedException::class.java)
             .verify()
     }
-
-    // Add more tests for other scenarios as needed
 }
