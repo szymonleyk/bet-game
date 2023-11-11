@@ -1,3 +1,7 @@
 package pl.szymonleyk.betgame.register
 
-data class AccountIdData(val id:Int)
+import com.fasterxml.jackson.annotation.JsonProperty
+
+data class AccountIdData(
+    @JsonProperty("id") val id: Int
+)
