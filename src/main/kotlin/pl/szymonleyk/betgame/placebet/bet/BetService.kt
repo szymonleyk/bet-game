@@ -31,50 +31,50 @@ class BetService(
             .switchIfEmpty(Mono.error(::NegativeBalanceException))
             .flatMap { deductBetValue(it, placeBetRequest.betValue) }
             .flatMap { play(it, placeBetRequest) }
-            .thenReturn("Bet placed.")
+            .flatMap { addBet(it) }
 
-    private fun deductBetValue(account: Account, betValue: Int): Mono<Account> {
-        addNewWalletTransaction((-betValue).toDouble(), account.id!!)
-        return changeAccountBalance((-betValue).toDouble(), account)
+    private fun addBet(bet: Bet): Mono<String> {
+        val returnValue = if(bet.win) "Win" else "Lose"
+        return betRepository.save(bet).thenReturn(returnValue)
     }
 
-    private fun addWinAmount(account: Account, amount: Double) {
-        changeAccountBalance(amount, account).subscribe()
-        addNewWalletTransaction(amount, account.id!!)
-    }
+    private fun deductBetValue(account: Account, betValue: Int): Mono<Account> =
+        changeAccountBalance((-betValue).toDouble(), account)
+            .doOnSuccess { addNewWalletTransaction((-betValue).toDouble(), account.id!!) }
 
-    private fun play(account: Account, placeBetRequest: PlaceBetRequest): Mono<out Any>? {
+    private fun addWinAmount(account: Account, amount: Double) =
+        changeAccountBalance(amount, account)
+            .doOnSuccess { addNewWalletTransaction(amount, account.id!!) }
+
+
+    private fun play(account: Account, placeBetRequest: PlaceBetRequest) : Mono<Bet> {
         val randomNumber = generateRandomNumber()
         val winAmount = calculateBetResult(placeBetRequest, randomNumber)
 
-        val hasWinner = winAmount > 0
-        if (hasWinner) {
+        if (winAmount > 0) {
             addWinAmount(account, winAmount)
         }
-        addBet(
-            Bet(
-                betDate = LocalDate.now(),
-                betValue = placeBetRequest.betValue,
-                betNumber = placeBetRequest.betNumber,
-                win = hasWinner,
-                accountId = account.id!!
-            )
+
+        val bet = Bet(
+            betDate = LocalDate.now(),
+            betValue = placeBetRequest.betValue,
+            betNumber = placeBetRequest.betNumber,
+            win = winAmount > 0,
+            accountId = placeBetRequest.accountId
         )
 
-        return Mono.empty()
+        return Mono.just(bet)
     }
 
-    private fun addBet(bet: Bet) {
-        betRepository.save(bet).subscribe()
-    }
-
-    private fun calculateBetResult(placeBetRequest: PlaceBetRequest, randomNumber: Int): Double =
-        when {
-            placeBetRequest.betNumber == randomNumber -> 10.0 * placeBetRequest.betValue
-            abs(placeBetRequest.betNumber - randomNumber) == 1 -> 5.0 * placeBetRequest.betValue
-            abs(placeBetRequest.betNumber - randomNumber) == 2 -> 0.5 * placeBetRequest.betValue
+    private fun calculateBetResult(placeBetRequest: PlaceBetRequest, randomNumber: Int): Double {
+        val difference = abs(placeBetRequest.betNumber - randomNumber)
+        return when {
+            difference == 0 -> 10.0 * placeBetRequest.betValue
+            difference == 1 -> 5.0 * placeBetRequest.betValue
+            difference == 2 -> 0.5 * placeBetRequest.betValue
             else -> 0.0
         }
+    }
 
     private fun generateRandomNumber(): Int = Random.nextInt(MIN_BET_VALUE, MAX_BET_VALUE + 1)
 

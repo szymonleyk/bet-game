@@ -8,7 +8,6 @@ import java.time.LocalDate
 
 @RestController
 class WalletTransactionsController(val walletTransactionService: WalletTransactionService) {
-
     @GetMapping("/wallet-transactions/{accountId}")
     fun retrieveWalletTransactions(@PathVariable accountId: Int) : Flux<WalletTransactionData> =
         walletTransactionService.retrieveWalletTransactions(accountId)
