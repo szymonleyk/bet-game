@@ -24,7 +24,7 @@ class BetService(
 ) {
 
     @Transactional
-    fun placeBet(placeBetRequest: PlaceBetRequest): Mono<String> =
+    fun placeBet(placeBetRequest: PlaceBetRequest): Mono<PlaceBetResponse> =
         accountRepository.findById(placeBetRequest.accountId)
             .switchIfEmpty(Mono.error(::AccountNotFoundException))
             .filter { hasSufficientBalance(it, placeBetRequest.betValue) }
@@ -33,9 +33,8 @@ class BetService(
             .flatMap { play(it, placeBetRequest) }
             .flatMap { addBet(it) }
 
-    private fun addBet(bet: Bet): Mono<String> {
-        val returnValue = if(bet.win) "Win" else "Lose"
-        return betRepository.save(bet).thenReturn(returnValue)
+    private fun addBet(bet: Bet): Mono<PlaceBetResponse> {
+        return betRepository.save(bet).map { PlaceBetResponse(bet.betValue, bet.betNumber, bet.win) }
     }
 
     private fun deductBetValue(account: Account, betValue: Int): Mono<Account> =

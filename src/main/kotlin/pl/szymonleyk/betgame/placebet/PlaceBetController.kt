@@ -12,13 +12,14 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import pl.szymonleyk.betgame.placebet.bet.BetService
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 @RestController
 class PlaceBetController(val betService: BetService) {
 
     @PostMapping("/place-bet")
     @ResponseStatus(HttpStatus.CREATED)
-    fun placeBet(@Valid @RequestBody placeBetRequest: PlaceBetRequest) =
+    fun placeBet(@Valid @RequestBody placeBetRequest: PlaceBetRequest): Mono<PlaceBetResponse> =
         betService.placeBet(placeBetRequest)
 
     @GetMapping("/bets/{accountId}")
