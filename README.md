@@ -35,9 +35,8 @@ docker run -p 8080:8080 bet-game-image
 
 ### Documentation
 Open swagger-ui and use as you wish
-```shell
-http://localhost:8080/swagger-ui
-```
+[http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui)
+
 
 ### Use cases
 Register account
