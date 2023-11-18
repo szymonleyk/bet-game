@@ -41,38 +41,51 @@ class BetService(
         changeAccountBalance((-betValue).toDouble(), account)
             .doOnSuccess { addNewWalletTransaction((-betValue).toDouble(), account.id!!) }
 
-    private fun addWinAmount(account: Account, amount: Double) =
+    private fun addWinAmount(account: Account, amount: Double): Mono<Account> =
         changeAccountBalance(amount, account)
             .doOnSuccess { addNewWalletTransaction(amount, account.id!!) }
 
 
-    private fun play(account: Account, placeBetRequest: PlaceBetRequest) : Mono<Bet> {
-        val randomNumber = generateRandomNumber()
-        val winAmount = calculateBetResult(placeBetRequest, randomNumber)
-
-        if (winAmount > 0) {
-            addWinAmount(account, winAmount)
+    private fun play(account: Account, placeBetRequest: PlaceBetRequest): Mono<Bet> {
+        return Mono.defer {
+            val randomNumber = generateRandomNumber()
+            calculateBetResult(placeBetRequest, randomNumber)
+                .flatMap { winAmount ->
+                    createBet(account, placeBetRequest, winAmount)
+                }
         }
+    }
 
+    private fun createBet(account: Account, placeBetRequest: PlaceBetRequest, winAmount: Double): Mono<Bet> {
         val bet = Bet(
             betDate = LocalDate.now(),
             betValue = placeBetRequest.betValue,
             betNumber = placeBetRequest.betNumber,
-            win = winAmount > 0,
+            win = true,
             accountId = placeBetRequest.accountId
         )
-
-        return Mono.just(bet)
+        return if (winAmount > 0) {
+            addWinAmount(account, winAmount)
+                .map {
+                    bet.copy(win = true)
+                }
+        } else {
+            Mono.just(
+                bet.copy(win = false)
+            )
+        }
     }
 
-    private fun calculateBetResult(placeBetRequest: PlaceBetRequest, randomNumber: Int): Double {
+    private fun calculateBetResult(placeBetRequest: PlaceBetRequest, randomNumber: Int): Mono<Double> {
         val difference = abs(placeBetRequest.betNumber - randomNumber)
-        return when {
-            difference == 0 -> 10.0 * placeBetRequest.betValue
-            difference == 1 -> 5.0 * placeBetRequest.betValue
-            difference == 2 -> 0.5 * placeBetRequest.betValue
-            else -> 0.0
-        }
+        return Mono.just(
+            when {
+                difference == 0 -> 10.0 * placeBetRequest.betValue
+                difference == 1 -> 5.0 * placeBetRequest.betValue
+                difference == 2 -> 0.5 * placeBetRequest.betValue
+                else -> 0.0
+            }
+        )
     }
 
     private fun generateRandomNumber(): Int = Random.nextInt(MIN_BET_VALUE, MAX_BET_VALUE + 1)
